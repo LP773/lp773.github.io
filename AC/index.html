@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Auction Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #1a202c;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .header {
+            background: white;
+            color: #1a202c;
+            text-align: center;
+            padding: 40px 30px 30px 30px;
+            border-bottom: 3px solid #f59e0b;
+        }
+        
+        .header h1 {
+            font-size: 2.25rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #1a202c;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+        
+        .input-section {
+            padding: 35px 40px 30px 40px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            color: #64748b;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            color: #1a202c;
+            background: #f8fafc;
+        }
+        
+        .input-group {
+            margin-bottom: 22px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+            background: white;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+            background: white;
+        }
+        
+        .input-group input.error {
+            border-color: #ef4444;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-clear {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-clear:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-share {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        
+        .btn-share:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        .calculators {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 35px 40px 40px 40px;
+            background: white;
+        }
+        
+        .calculator {
+            background: #fafbfc;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .calculator:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+        
+        .calculator-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .logo-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            margin-right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nellis-logo {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        
+        .macbids-logo {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .calculator h3 {
+            font-size: 1.3rem;
+            color: #1a202c;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+            transition: opacity 0.3s ease;
+        }
+        
+        .calculation-row.calculating {
+            opacity: 0.5;
+        }
+        
+        .calculation-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            margin: 20px -14px -14px -14px;
+            padding: 18px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+        
+        .calculation-row .label {
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .calculation-row:last-child .label {
+            color: white;
+        }
+        
+        .calculation-row .value {
+            font-weight: 700;
+            color: #1a202c;
+        }
+        
+        .calculation-row:last-child .value {
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .percentage {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+        
+        .spacer-row {
+            display: flex;
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 10px 0 !important;
+            visibility: hidden;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .calculating .value {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .calculators {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-section {
+                padding: 20px;
+            }
+            
+            .calculator {
+                padding: 20px;
+            }
+            
+            .logo-placeholder {
+                width: 50px;
+                height: 50px;
+                font-size: 11px;
+            }
+            
+            .spacer-row {
+                display: none;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="calculator-container">
+        <div class="header">
+            <h1>🎰 Auction Calculator</h1>
+        </div>
+        
+        <div class="input-section">
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="forward-mode-btn" onclick="setMode('forward')">
+                    💰 Total Cost
+                </button>
+                <button class="mode-btn" id="reverse-mode-btn" onclick="setMode('reverse')">
+                    🎯 Max Bid
+                </button>
+            </div>
+            
+            <div id="forward-inputs">
+                <div class="input-group">
+                    <label for="bidAmount">Bid Amount ($)</label>
+                    <input type="number" id="bidAmount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autofocus>
+                    <div class="error-message" id="bid-error">Please enter a valid amount (0 or greater)</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="insurance">Insurance ($) - Mac.Bids Only</label>
+                    <input type="number" id="insurance" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <div class="error-message" id="insurance-error">Please enter a valid amount (0 or greater)</div>
+                </div>
+            </div>
+            
+            <div id="reverse-inputs" style="display: none;">
+                <div class="input-group">
+                    <label for="maxBudget">Maximum Budget (After Taxes & Fees) ($)</label>
+                    <input type="number" id="maxBudget" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <div class="error-message" id="budget-error">Please enter a valid amount (0 or greater)</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="reverseInsurance">Insurance ($) - Mac.Bids Only</label>
+                    <input type="number" id="reverseInsurance" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <div class="error-message" id="reverse-insurance-error">Please enter a valid amount (0 or greater)</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-clear" onclick="clearAll()">🔄 Clear All</button>
+                <button class="btn btn-share" onclick="shareAsImage()">📸 Share as Image</button>
+            </div>
+        </div>
+        
+        <div class="calculators">
+            <div class="calculator">
+                <div class="calculator-header">
+                    <div class="logo-placeholder nellis-logo">NELLIS<br>AUCTION</div>
+                    <h3>Nellis Auction</h3>
+                </div>
+                
+                <div class="calculation-row" id="nellis-bid-amount">
+                    <span class="label">Bid Amount:</span>
+                    <span class="value" id="nellis-bid">$0.00</span>
+                </div>
+                
+                <div class="calculation-row" id="nellis-max-bid-row" style="display: none;">
+                    <span class="label" style="color: #27ae60; font-weight: 700;">💰 Your Max Bid:</span>
+                    <span class="value" style="color: #27ae60; font-size: 1.1rem;" id="nellis-max-bid">$0.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Buyer's Premium:</span>
+                    <span class="value">
+                        <span id="nellis-premium">$0.00</span>
+                        <span class="percentage">(15%)</span>
+                    </span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Subtotal:</span>
+                    <span class="value" id="nellis-subtotal">$0.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Sales Tax:</span>
+                    <span class="value">
+                        <span id="nellis-tax">$0.00</span>
+                        <span class="percentage">(8.375%)</span>
+                    </span>
+                </div>
+
+                <div class="calculation-row spacer-row">
+                    <span class="label"></span>
+                    <span class="value"></span>
+                </div>
+                
+                <div class="calculation-row spacer-row">
+                    <span class="label"></span>
+                    <span class="value"></span>
+                </div>
+
+                <div class="calculation-row spacer-row">
+                    <span class="label"></span>
+                    <span class="value"></span>
+                </div>
+                
+                <div class="calculation-row spacer-row">
+                    <span class="label"></span>
+                    <span class="value"></span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">TOTAL COST:</span>
+                    <span class="value" id="nellis-total">$0.00</span>
+                </div>
+            </div>
+            
+            <div class="calculator">
+                <div class="calculator-header">
+                    <div class="logo-placeholder macbids-logo">MAC<br>BIDS</div>
+                    <h3>Mac.Bids</h3>
+                </div>
+                
+                <div class="calculation-row" id="macbids-bid-amount">
+                    <span class="label">Bid Amount:</span>
+                    <span class="value" id="macbids-bid">$0.00</span>
+                </div>
+                
+                <div class="calculation-row" id="macbids-max-bid-row" style="display: none;">
+                    <span class="label" style="color: #27ae60; font-weight: 700;">💰 Your Max Bid:</span>
+                    <span class="value" style="color: #27ae60; font-size: 1.1rem;" id="macbids-max-bid">$0.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Buyer's Premium:</span>
+                    <span class="value">
+                        <span id="macbids-premium">$0.00</span>
+                        <span class="percentage">(15%)</span>
+                    </span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Lot Fee:</span>
+                    <span class="value" id="macbids-lot-fee">$3.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Insurance:</span>
+                    <span class="value" id="macbids-insurance">$0.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Subtotal:</span>
+                    <span class="value" id="macbids-subtotal">$0.00</span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">Sales Tax:</span>
+                    <span class="value">
+                        <span id="macbids-tax">$0.00</span>
+                        <span class="percentage">(8.375%)</span>
+                    </span>
+                </div>
+                
+                <div class="calculation-row">
+                    <span class="label">TOTAL COST:</span>
+                    <span class="value" id="macbids-total">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentMode = 'forward';
+        
+        function setMode(mode) {
+            currentMode = mode;
+            
+            if (mode === 'forward') {
+                document.getElementById('forward-mode-btn').classList.add('active');
+                document.getElementById('reverse-mode-btn').classList.remove('active');
+                document.getElementById('forward-inputs').style.display = 'block';
+                document.getElementById('reverse-inputs').style.display = 'none';
+                document.getElementById('bidAmount').focus();
+            } else {
+                document.getElementById('forward-mode-btn').classList.remove('active');
+                document.getElementById('reverse-mode-btn').classList.add('active');
+                document.getElementById('forward-inputs').style.display = 'none';
+                document.getElementById('reverse-inputs').style.display = 'block';
+                document.getElementById('maxBudget').focus();
+            }
+            
+            calculateFees();
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+        
+        function validateInput(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            const value = parseFloat(input.value);
+            
+            if (input.value !== '' && (isNaN(value) || value < 0)) {
+                input.classList.add('error');
+                error.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                error.classList.remove('show');
+                return true;
+            }
+        }
+        
+        function reverseCalculate(maxBudget, insurance, site) {
+            // Working backwards from total to find bid amount
+            // Total = (Bid + Premium + Fees + Insurance) * (1 + Tax)
+            // For Nellis: Total = (Bid * 1.15) * 1.08375
+            // For Mac.Bids: Total = (Bid * 1.15 + 3 + Insurance) * 1.08375
+            
+            const taxRate = 0.08375;
+            const premiumRate = 0.15;
+            
+            if (site === 'nellis') {
+                // Total = (Bid * 1.15) * 1.08375
+                // Bid = Total / (1.15 * 1.08375)
+                return maxBudget / (1.15 * 1.08375);
+            } else {
+                // Total = (Bid * 1.15 + 3 + Insurance) * 1.08375
+                // (Total / 1.08375) = Bid * 1.15 + 3 + Insurance
+                // Bid = ((Total / 1.08375) - 3 - Insurance) / 1.15
+                const subtotal = maxBudget / 1.08375;
+                return (subtotal - 3 - insurance) / 1.15;
+            }
+        }
+        
+        function calculateFees() {
+            if (currentMode === 'reverse') {
+                // Reverse mode: calculate max bid from budget for BOTH sites
+                const budgetValid = validateInput('maxBudget', 'budget-error');
+                const insuranceValid = validateInput('reverseInsurance', 'reverse-insurance-error');
+                
+                if (!budgetValid || !insuranceValid) {
+                    return;
+                }
+                
+                const maxBudget = parseFloat(document.getElementById('maxBudget').value) || 0;
+                const insurance = parseFloat(document.getElementById('reverseInsurance').value) || 0;
+                
+                // Calculate max bid for both sites
+                const nellisMaxBid = reverseCalculate(maxBudget, 0, 'nellis');
+                const macbidsMaxBid = reverseCalculate(maxBudget, insurance, 'macbids');
+                
+                // Show the max bid rows
+                document.getElementById('nellis-max-bid-row').style.display = 'flex';
+                document.getElementById('macbids-max-bid-row').style.display = 'flex';
+
+                // Hide bid amount rows & amounts
+                document.getElementById('nellis-bid-amount').style.display = 'none';
+                document.getElementById('macbids-bid-amount').style.display = 'none';
+                
+                // Update the max bid displays
+                document.getElementById('nellis-max-bid').textContent = formatCurrency(Math.max(0, nellisMaxBid));
+                document.getElementById('macbids-max-bid').textContent = formatCurrency(Math.max(0, macbidsMaxBid));
+                
+                // Set the bid amounts for the calculations
+                document.getElementById('bidAmount').value = Math.max(0, nellisMaxBid).toFixed(2);
+                document.getElementById('insurance').value = insurance.toFixed(2);
+            } else {
+                // Hide max bid rows in forward mode
+                document.getElementById('nellis-max-bid-row').style.display = 'none';
+                document.getElementById('macbids-max-bid-row').style.display = 'none';
+
+                // Display Bid Amount row in forward mode
+                document.getElementById('nellis-bid-amount').style.display = 'flex';
+                document.getElementById('macbids-bid-amount').style.display = 'flex';
+            }
+            
+            // Forward calculation (same as before)
+            const bidValid = validateInput('bidAmount', 'bid-error');
+            const insuranceValid = validateInput('insurance', 'insurance-error');
+            
+            if (!bidValid || !insuranceValid) {
+                return;
+            }
+            
+            // Add calculating animation
+            document.querySelectorAll('.calculation-row').forEach(row => {
+                row.classList.add('calculating');
+            });
+            
+            // Simulate brief calculation delay for animation
+            setTimeout(() => {
+                const bidAmount = parseFloat(document.getElementById('bidAmount').value) || 0;
+                const insurance = parseFloat(document.getElementById('insurance').value) || 0;
+                
+                // Nellis Auction Calculations
+                const nellisBid = bidAmount;
+                const nellisPremium = bidAmount * 0.15;
+                const nellisSubtotal = nellisBid + nellisPremium;
+                const nellisTax = nellisSubtotal * 0.08375;
+                const nellisTotal = nellisSubtotal + nellisTax;
+                
+                // Mac.Bids Calculations
+                const macbidsBid = bidAmount;
+                const macbidsPremium = bidAmount * 0.15;
+                const macbidsLotFee = 3.00;
+                const macbidsSubtotal = macbidsBid + macbidsPremium + macbidsLotFee + insurance;
+                const macbidsTax = macbidsSubtotal * 0.08375;
+                const macbidsTotal = macbidsSubtotal + macbidsTax;
+                
+                // In reverse mode, calculate max bid for Mac.Bids separately
+                if (currentMode === 'reverse') {
+                    const maxBudget = parseFloat(document.getElementById('maxBudget').value) || 0;
+                    const reverseInsurance = parseFloat(document.getElementById('reverseInsurance').value) || 0;
+                    const macbidsMaxBid = reverseCalculate(maxBudget, reverseInsurance, 'macbids');
+                    
+                    // Update Mac.Bids with its own max bid
+                    const macbidsBidCalc = macbidsMaxBid;
+                    const macbidsPremiumCalc = macbidsBidCalc * 0.15;
+                    const macbidsSubtotalCalc = macbidsBidCalc + macbidsPremiumCalc + macbidsLotFee + reverseInsurance;
+                    const macbidsTaxCalc = macbidsSubtotalCalc * 0.08375;
+                    const macbidsTotalCalc = macbidsSubtotalCalc + macbidsTaxCalc;
+                    
+                    document.getElementById('macbids-bid').textContent = formatCurrency(macbidsBidCalc);
+                    document.getElementById('macbids-premium').textContent = formatCurrency(macbidsPremiumCalc);
+                    document.getElementById('macbids-insurance').textContent = formatCurrency(reverseInsurance);
+                    document.getElementById('macbids-subtotal').textContent = formatCurrency(macbidsSubtotalCalc);
+                    document.getElementById('macbids-tax').textContent = formatCurrency(macbidsTaxCalc);
+                    document.getElementById('macbids-total').textContent = formatCurrency(macbidsTotalCalc);
+                } else {
+                    document.getElementById('macbids-bid').textContent = formatCurrency(macbidsBid);
+                    document.getElementById('macbids-premium').textContent = formatCurrency(macbidsPremium);
+                    document.getElementById('macbids-insurance').textContent = formatCurrency(insurance);
+                    document.getElementById('macbids-subtotal').textContent = formatCurrency(macbidsSubtotal);
+                    document.getElementById('macbids-tax').textContent = formatCurrency(macbidsTax);
+                    document.getElementById('macbids-total').textContent = formatCurrency(macbidsTotal);
+                }
+                
+                // Update Nellis display
+                document.getElementById('nellis-bid').textContent = formatCurrency(nellisBid);
+                document.getElementById('nellis-premium').textContent = formatCurrency(nellisPremium);
+                document.getElementById('nellis-subtotal').textContent = formatCurrency(nellisSubtotal);
+                document.getElementById('nellis-tax').textContent = formatCurrency(nellisTax);
+                document.getElementById('nellis-total').textContent = formatCurrency(nellisTotal);
+                
+                document.getElementById('macbids-lot-fee').textContent = formatCurrency(macbidsLotFee);
+                
+                // Remove calculating animation
+                document.querySelectorAll('.calculation-row').forEach(row => {
+                    row.classList.remove('calculating');
+                });
+            }, 150);
+        }
+        
+        function clearAll() {
+            document.getElementById('bidAmount').value = '';
+            document.getElementById('insurance').value = '';
+            document.getElementById('maxBudget').value = '';
+            document.getElementById('reverseInsurance').value = '';
+            document.getElementById('bidAmount').classList.remove('error');
+            document.getElementById('insurance').classList.remove('error');
+            document.getElementById('maxBudget').classList.remove('error');
+            document.getElementById('reverseInsurance').classList.remove('error');
+            document.getElementById('bid-error').classList.remove('show');
+            document.getElementById('insurance-error').classList.remove('show');
+            document.getElementById('budget-error').classList.remove('show');
+            document.getElementById('reverse-insurance-error').classList.remove('show');
+            calculateFees();
+            
+            if (currentMode === 'forward') {
+                document.getElementById('bidAmount').focus();
+            } else {
+                document.getElementById('maxBudget').focus();
+            }
+        }
+        
+        async function shareAsImage() {
+            const container = document.getElementById('calculator-container');
+            
+            try {
+                const canvas = await html2canvas(container, {
+                    backgroundColor: '#667eea',
+                    scale: 2,
+                    logging: false
+                });
+                
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'auction-calculator.png', { type: 'image/png' });
+                    
+                    // Check if Web Share API is available
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Auction Fee Calculator',
+                                text: 'Check out my auction calculation'
+                            });
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                downloadImage(canvas);
+                            }
+                        }
+                    } else {
+                        // Fallback to download
+                        downloadImage(canvas);
+                    }
+                });
+            } catch (err) {
+                console.error('Error generating image:', err);
+                alert('Could not generate image. Please try again.');
+            }
+        }
+        
+        function downloadImage(canvas) {
+            const link = document.createElement('a');
+            link.download = 'auction-calculator.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Add event listener for real-time calculation
+        document.getElementById('bidAmount').addEventListener('input', calculateFees);
+        document.getElementById('insurance').addEventListener('input', calculateFees);
+        document.getElementById('maxBudget').addEventListener('input', calculateFees);
+        document.getElementById('reverseInsurance').addEventListener('input', calculateFees);
+        
+        // Initial calculation
+        calculateFees();
+    </script>
+</body>
+</html>
