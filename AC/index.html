@@ -12,61 +12,122 @@
             box-sizing: border-box;
         }
         
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: white;
+            --bg-tertiary: #fafbfc;
+            --text-primary: #1a202c;
+            --text-secondary: #334155;
+            --text-tertiary: #475569;
+            --text-muted: #64748b;
+            --border-primary: #e2e8f0;
+            --border-secondary: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.08);
+            --input-bg: white;
+            --card-bg: #fafbfc;
+            --card-hover-border: #cbd5e1;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-primary: #334155;
+            --border-secondary: #475569;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2), 0 12px 24px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --input-bg: #0f172a;
+            --card-bg: #0f172a;
+            --card-hover-border: #475569;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-            background: #f5f7fa;
+            background: var(--bg-primary);
             min-height: 100vh;
             padding: 40px 20px;
-            color: #1a202c;
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.04);
+            box-shadow: var(--shadow-md);
             overflow: hidden;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-primary);
+            transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
         }
         
         .header {
-            background: white;
-            color: #1a202c;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             text-align: center;
             padding: 40px 30px 30px 30px;
             border-bottom: 3px solid #f59e0b;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .header h1 {
             font-size: 2.25rem;
             margin-bottom: 8px;
             font-weight: 700;
-            color: #1a202c;
+            color: var(--text-primary);
             letter-spacing: -0.5px;
         }
         
         .header p {
             font-size: 1rem;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 400;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
         }
         
         .input-section {
             padding: 35px 40px 30px 40px;
-            background: #fafbfc;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-primary);
+            transition: background 0.3s ease, border 0.3s ease;
         }
         
         .mode-toggle {
             display: flex;
             gap: 8px;
             margin-bottom: 28px;
-            background: white;
+            background: var(--bg-secondary);
             padding: 6px;
             border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
         
         .mode-btn {
@@ -79,7 +140,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             background: transparent;
-            color: #64748b;
+            color: var(--text-muted);
         }
         
         .mode-btn.active {
@@ -89,8 +150,8 @@
         }
         
         .mode-btn:hover:not(.active) {
-            color: #1a202c;
-            background: #f8fafc;
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
         }
         
         .input-group {
@@ -102,18 +163,19 @@
             font-size: 0.95rem;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #334155;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
         
         .input-group input {
             width: 100%;
             padding: 14px 18px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-primary);
             border-radius: 12px;
             font-size: 1.05rem;
             transition: all 0.2s ease;
-            background: white;
-            color: #1a202c;
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-weight: 500;
         }
         
@@ -121,7 +183,7 @@
             outline: none;
             border-color: #f59e0b;
             box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
-            background: white;
+            background: var(--input-bg);
         }
         
         .input-group input.error {
@@ -158,15 +220,16 @@
         }
         
         .btn-clear {
-            background: #f1f5f9;
-            color: #475569;
-            border: 1px solid #e2e8f0;
+            background: var(--bg-tertiary);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border-primary);
+            transition: all 0.2s ease;
         }
         
         .btn-clear:hover {
-            background: #e2e8f0;
+            background: var(--border-primary);
             transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .btn-share {
@@ -185,22 +248,23 @@
             grid-template-columns: 1fr 1fr;
             gap: 24px;
             padding: 35px 40px 40px 40px;
-            background: white;
+            background: var(--bg-secondary);
+            transition: background 0.3s ease;
         }
         
         .calculator {
-            background: #fafbfc;
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 28px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e2e8f0;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
             transition: all 0.2s ease;
         }
         
         .calculator:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-            border-color: #cbd5e1;
+            box-shadow: var(--shadow-lg);
+            border-color: var(--card-hover-border);
         }
         
         .calculator-header {
@@ -208,7 +272,8 @@
             align-items: center;
             margin-bottom: 24px;
             padding-bottom: 18px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid var(--border-primary);
+            transition: border 0.3s ease;
         }
         
         .logo-placeholder {
@@ -237,9 +302,10 @@
         
         .calculator h3 {
             font-size: 1.3rem;
-            color: #1a202c;
+            color: var(--text-primary);
             font-weight: 700;
             letter-spacing: -0.3px;
+            transition: color 0.3s ease;
         }
         
         .calculation-row {
@@ -247,9 +313,9 @@
             justify-content: space-between;
             align-items: center;
             padding: 11px 0;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-primary);
             font-size: 0.95rem;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, border 0.3s ease;
         }
         
         .calculation-row.calculating {
@@ -269,8 +335,9 @@
         }
         
         .calculation-row .label {
-            color: #475569;
+            color: var(--text-tertiary);
             font-weight: 500;
+            transition: color 0.3s ease;
         }
         
         .calculation-row:last-child .label {
@@ -279,7 +346,8 @@
         
         .calculation-row .value {
             font-weight: 700;
-            color: #1a202c;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         .calculation-row:last-child .value {
@@ -289,14 +357,15 @@
         
         .percentage {
             font-size: 0.8rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             margin-left: 6px;
             font-weight: 500;
+            transition: color 0.3s ease;
         }
         
         .spacer-row {
             display: flex;
-            border-bottom: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid var(--border-primary) !important;
             padding: 10px 0 !important;
             visibility: hidden;
         }
@@ -348,6 +417,9 @@
 <body>
     <div class="container" id="calculator-container">
         <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                <span id="theme-icon">🌙</span>
+            </button>
             <h1>🎰 Auction Calculator</h1>
         </div>
         
@@ -364,27 +436,27 @@
             <div id="forward-inputs">
                 <div class="input-group">
                     <label for="bidAmount">Bid Amount ($)</label>
-                    <input type="number" id="bidAmount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autofocus>
+                    <input type="number" id="bidAmount" placeholder="0" step="1" min="0" inputmode="numeric" autofocus>
                     <div class="error-message" id="bid-error">Please enter a valid amount (0 or greater)</div>
                 </div>
                 
                 <div class="input-group">
                     <label for="insurance">Insurance ($) - Mac.Bids Only</label>
-                    <input type="number" id="insurance" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <input type="number" id="insurance" placeholder="0" step="1" min="0" inputmode="numeric">
                     <div class="error-message" id="insurance-error">Please enter a valid amount (0 or greater)</div>
                 </div>
             </div>
             
             <div id="reverse-inputs" style="display: none;">
                 <div class="input-group">
-                    <label for="maxBudget">Maximum Budget (After Taxes & Fees) ($)</label>
-                    <input type="number" id="maxBudget" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <label for="maxBid">Max Bid ($) - Inc. Taxes & Fees</label>
+                    <input type="number" id="maxBid" placeholder="0" step="1" min="0" inputmode="numeric">
                     <div class="error-message" id="budget-error">Please enter a valid amount (0 or greater)</div>
                 </div>
                 
                 <div class="input-group">
                     <label for="reverseInsurance">Insurance ($) - Mac.Bids Only</label>
-                    <input type="number" id="reverseInsurance" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                    <input type="number" id="reverseInsurance" placeholder="0" step="1" min="0" inputmode="numeric">
                     <div class="error-message" id="reverse-insurance-error">Please enter a valid amount (0 or greater)</div>
                 </div>
             </div>
@@ -395,7 +467,7 @@
             </div>
         </div>
         
-        <div class="calculators">
+        <div class="calculators" id="calculators-section">
             <div class="calculator">
                 <div class="calculator-header">
                     <div class="logo-placeholder nellis-logo">NELLIS<br>AUCTION</div>
@@ -420,6 +492,7 @@
                     </span>
                 </div>
                 
+                
                 <div class="calculation-row">
                     <span class="label">Subtotal:</span>
                     <span class="value" id="nellis-subtotal">$0.00</span>
@@ -433,7 +506,7 @@
                     </span>
                 </div>
 
-                <div class="calculation-row spacer-row">
+                    <div class="calculation-row spacer-row">
                     <span class="label"></span>
                     <span class="value"></span>
                 </div>
@@ -516,6 +589,30 @@
     
     <script>
         let currentMode = 'forward';
+        let darkMode = false;
+        
+        // Check for saved theme preference or default to light mode
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                darkMode = true;
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').textContent = '☀️';
+            }
+        }
+        
+        function toggleTheme() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('theme-icon').textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
         
         function setMode(mode) {
             currentMode = mode;
@@ -531,7 +628,7 @@
                 document.getElementById('reverse-mode-btn').classList.add('active');
                 document.getElementById('forward-inputs').style.display = 'none';
                 document.getElementById('reverse-inputs').style.display = 'block';
-                document.getElementById('maxBudget').focus();
+                document.getElementById('maxBid').focus();
             }
             
             calculateFees();
@@ -560,7 +657,7 @@
             }
         }
         
-        function reverseCalculate(maxBudget, insurance, site) {
+        function reverseCalculate(maxBid, insurance, site) {
             // Working backwards from total to find bid amount
             // Total = (Bid + Premium + Fees + Insurance) * (1 + Tax)
             // For Nellis: Total = (Bid * 1.15) * 1.08375
@@ -572,12 +669,12 @@
             if (site === 'nellis') {
                 // Total = (Bid * 1.15) * 1.08375
                 // Bid = Total / (1.15 * 1.08375)
-                return maxBudget / (1.15 * 1.08375);
+                return maxBid / (1.15 * 1.08375);
             } else {
                 // Total = (Bid * 1.15 + 3 + Insurance) * 1.08375
                 // (Total / 1.08375) = Bid * 1.15 + 3 + Insurance
                 // Bid = ((Total / 1.08375) - 3 - Insurance) / 1.15
-                const subtotal = maxBudget / 1.08375;
+                const subtotal = maxBid / 1.08375;
                 return (subtotal - 3 - insurance) / 1.15;
             }
         }
@@ -585,19 +682,19 @@
         function calculateFees() {
             if (currentMode === 'reverse') {
                 // Reverse mode: calculate max bid from budget for BOTH sites
-                const budgetValid = validateInput('maxBudget', 'budget-error');
+                const budgetValid = validateInput('maxBid', 'budget-error');
                 const insuranceValid = validateInput('reverseInsurance', 'reverse-insurance-error');
                 
                 if (!budgetValid || !insuranceValid) {
                     return;
                 }
                 
-                const maxBudget = parseFloat(document.getElementById('maxBudget').value) || 0;
+                const maxBid = parseFloat(document.getElementById('maxBid').value) || 0;
                 const insurance = parseFloat(document.getElementById('reverseInsurance').value) || 0;
                 
                 // Calculate max bid for both sites
-                const nellisMaxBid = reverseCalculate(maxBudget, 0, 'nellis');
-                const macbidsMaxBid = reverseCalculate(maxBudget, insurance, 'macbids');
+                const nellisMaxBid = Math.floor(reverseCalculate(maxBid, 0, 'nellis'));
+                const macbidsMaxBid = Math.floor(reverseCalculate(maxBid, insurance, 'macbids'));
                 
                 // Show the max bid rows
                 document.getElementById('nellis-max-bid-row').style.display = 'flex';
@@ -611,15 +708,15 @@
                 document.getElementById('nellis-max-bid').textContent = formatCurrency(Math.max(0, nellisMaxBid));
                 document.getElementById('macbids-max-bid').textContent = formatCurrency(Math.max(0, macbidsMaxBid));
                 
-                // Set the bid amounts for the calculations
-                document.getElementById('bidAmount').value = Math.max(0, nellisMaxBid).toFixed(2);
-                document.getElementById('insurance').value = insurance.toFixed(2);
+                // Set the bid amounts for the calculations (as whole numbers)
+                document.getElementById('bidAmount').value = Math.max(0, nellisMaxBid);
+                document.getElementById('insurance').value = insurance;
             } else {
                 // Hide max bid rows in forward mode
                 document.getElementById('nellis-max-bid-row').style.display = 'none';
                 document.getElementById('macbids-max-bid-row').style.display = 'none';
 
-                // Display Bid Amount row in forward mode
+                // Show bid amount rows & amounts
                 document.getElementById('nellis-bid-amount').style.display = 'flex';
                 document.getElementById('macbids-bid-amount').style.display = 'flex';
             }
@@ -659,12 +756,12 @@
                 
                 // In reverse mode, calculate max bid for Mac.Bids separately
                 if (currentMode === 'reverse') {
-                    const maxBudget = parseFloat(document.getElementById('maxBudget').value) || 0;
+                    const maxBid = parseFloat(document.getElementById('maxBid').value) || 0;
                     const reverseInsurance = parseFloat(document.getElementById('reverseInsurance').value) || 0;
-                    const macbidsMaxBid = reverseCalculate(maxBudget, reverseInsurance, 'macbids');
+                    const macbidsMaxBid = Math.floor(reverseCalculate(maxBid, reverseInsurance, 'macbids'));
                     
                     // Update Mac.Bids with its own max bid
-                    const macbidsBidCalc = macbidsMaxBid;
+                    const macbidsBidCalc = Math.max(0, macbidsMaxBid);
                     const macbidsPremiumCalc = macbidsBidCalc * 0.15;
                     const macbidsSubtotalCalc = macbidsBidCalc + macbidsPremiumCalc + macbidsLotFee + reverseInsurance;
                     const macbidsTaxCalc = macbidsSubtotalCalc * 0.08375;
@@ -704,11 +801,11 @@
         function clearAll() {
             document.getElementById('bidAmount').value = '';
             document.getElementById('insurance').value = '';
-            document.getElementById('maxBudget').value = '';
+            document.getElementById('maxBid').value = '';
             document.getElementById('reverseInsurance').value = '';
             document.getElementById('bidAmount').classList.remove('error');
             document.getElementById('insurance').classList.remove('error');
-            document.getElementById('maxBudget').classList.remove('error');
+            document.getElementById('maxBid').classList.remove('error');
             document.getElementById('reverseInsurance').classList.remove('error');
             document.getElementById('bid-error').classList.remove('show');
             document.getElementById('insurance-error').classList.remove('show');
@@ -719,16 +816,16 @@
             if (currentMode === 'forward') {
                 document.getElementById('bidAmount').focus();
             } else {
-                document.getElementById('maxBudget').focus();
+                document.getElementById('maxBid').focus();
             }
         }
         
         async function shareAsImage() {
-            const container = document.getElementById('calculator-container');
+            const calculators = document.getElementById('calculators-section');
             
             try {
-                const canvas = await html2canvas(container, {
-                    backgroundColor: '#667eea',
+                const canvas = await html2canvas(calculators, {
+                    backgroundColor: darkMode ? '#1e293b' : '#ffffff',
                     scale: 2,
                     logging: false
                 });
@@ -741,7 +838,7 @@
                         try {
                             await navigator.share({
                                 files: [file],
-                                title: 'Auction Fee Calculator',
+                                title: 'Auction Calculator',
                                 text: 'Check out my auction calculation'
                             });
                         } catch (err) {
@@ -770,8 +867,11 @@
         // Add event listener for real-time calculation
         document.getElementById('bidAmount').addEventListener('input', calculateFees);
         document.getElementById('insurance').addEventListener('input', calculateFees);
-        document.getElementById('maxBudget').addEventListener('input', calculateFees);
+        document.getElementById('maxBid').addEventListener('input', calculateFees);
         document.getElementById('reverseInsurance').addEventListener('input', calculateFees);
+        
+        // Initialize theme on load
+        initTheme();
         
         // Initial calculation
         calculateFees();
