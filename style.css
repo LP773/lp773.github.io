@@ -1,11 +1,11 @@
 html{
     background: black;
-    color: #008F11;
+    color: #39FF14;
     font-family: "VT323", serif;
 }
 
 #intro, #projects, #certs{
-    text-align: center;
+    text-align: center; 
     margin-bottom: 50px;
     /* background: white; */
 }
@@ -48,10 +48,13 @@ p {
 }
 
 a{
-    color:#008F11;
+    color:#39FF14;
+}
+
+a:hover{
+    color: #008F11;
 }
 
 footer{
     text-align: center;
 }
-/* General Tags */
