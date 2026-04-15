@@ -56,20 +56,29 @@ let queryEditor = null;
 let activeTab = 'queries';
 let currentVersionIndex = null;
 
-// Tag color classes
-const tagColors = ['tag-blue', 'tag-green', 'tag-purple', 'tag-orange', 'tag-pink'];
+// Tag Categories — defines which tags belong to which category and therefore which color they get.
+// To add a new tag to a category, append it to the tags array.
+// Tags not listed in any category render as grey (tag-uncategorized).
+const tagCategories = {
+    "Network":  { color: "blue",   tags: ["IP", "SSH", "VPN", "DNS"] },
+    "Web":      { color: "purple", tags: ["URL", "Phishing", "HTTP"] },
+    "Cloud":    { color: "orange", tags: ["AWS", "Azure", "GCP"] },
+    "Identity": { color: "green",  tags: ["Sign In", "Identity", "VIP", "Device"] },
+    "Facility": { color: "pink",   tags: ["SCL", "MBS", "LVS"] },
+};
 
 // Utility Functions
 const getTagColor = (tag) => {
     try {
-        let hash = 0;
-        for (let i = 0; i < tag.length; i++) {
-            hash = (hash * 31 + tag.charCodeAt(i)) | 0;
+        for (const [category, config] of Object.entries(tagCategories)) {
+            if (config.tags.some(t => t.toLowerCase() === tag.toLowerCase())) {
+                return `tag-${config.color}`;
+            }
         }
-        return tagColors[Math.abs(hash) % tagColors.length];
+        return "tag-uncategorized";
     } catch (error) {
         console.error('Error in getTagColor:', error);
-        return 'tag-blue';
+        return "tag-uncategorized";
     }
 };
 
@@ -169,74 +178,163 @@ const updateVersionDisplay = () => {
 const showVersionHistory = () => {
     try {
         if (!selectedQueryId) return;
-        
         const query = queries.find(q => q.id === selectedQueryId);
-        if (!query || !query.versions) return;
-        
+        if (!query || !query.versions || query.versions.length === 0) return;
+
         const modal = document.getElementById('versionModal');
-        const versionList = document.getElementById('versionList');
-        
-        if (!modal || !versionList) return;
-        
-        // Sort versions by timestamp (newest first)
-        const sortedVersions = [...query.versions].sort((a, b) => b.timestamp - a.timestamp);
-        
-        versionList.innerHTML = sortedVersions.map((version, index) => {
-            const isCurrentVersion = version.id === query.currentVersion;
-            const date = new Date(version.timestamp).toLocaleString();
-            
-            return `
-                <div class="version-item p-4 bg-gray-50 dark:bg-gray-700 rounded-lg ${isCurrentVersion ? 'current' : ''}" data-version-id="${version.id}">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center space-x-3">
-                            <span class="version-badge">
-                                v${version.version}
-                            </span>
-                            ${isCurrentVersion ? '<span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded-full font-medium">Current</span>' : ''}
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            ${!isCurrentVersion ? `<button onclick="revertToVersion('${version.id}')" class="btn-secondary btn-xs flex inline-center">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                </svg>
-                                Revert
-                            </button>` : ''}
-                            <button onclick="viewVersion('${version.id}')" class="btn-secondary btn-xs flex inline-center">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                View
-                            </button>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <div class="flex items-center space-x-4">
-                            <span>📅 ${date}</span>
-                            <span>📝 ${version.name}</span>
-                        </div>
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 bg-gray-100 dark:bg-gray-600 p-2 rounded font-mono">
-                        ${version.query.substring(0, 100)}${version.query.length > 100 ? '...' : ''}
-                    </div>
-                    ${version.tags && version.tags.length > 0 ? `
-                        <div class="flex flex-wrap gap-1 mt-2">
-                            ${version.tags.map(tag => `<span class="modern-tag ${getTagColor(tag)} text-xs">${tag}</span>`).join('')}
-                        </div>
-                    ` : ''}
+        if (!modal) return;
+
+        if (query.versions.length === 1) {
+            const listPanel = document.getElementById('versionListPanel');
+            const diffContent = document.getElementById('diffContent');
+            if (listPanel) listPanel.innerHTML = '';
+            if (diffContent) diffContent.innerHTML = `
+                <div class="p-8 text-center">
+                    <div class="text-4xl mb-3">📝</div>
+                    <p class="font-medium text-gray-700 dark:text-gray-300">Only one version exists</p>
+                    <p class="text-sm text-gray-400 mt-1">Save changes to create a second version and enable diff view.</p>
                 </div>
             `;
-        }).join('');
-        
+        } else {
+            renderVersionListPanel(query);
+            const diffContent = document.getElementById('diffContent');
+            if (diffContent) diffContent.innerHTML = `
+                <div class="h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                    <div class="text-center">
+                        <div class="text-2xl mb-2">↔</div>
+                        <p>Select a past version on the left to compare</p>
+                    </div>
+                </div>
+            `;
+        }
+
         modal.style.display = 'block';
         setTimeout(() => {
             modal.classList.add('show');
             modal.querySelector('.modal').classList.add('show');
         }, 10);
-        
     } catch (error) {
         console.error('Error showing version history:', error);
         showToast('toast-error', 'Failed to show version history');
+    }
+};
+
+const renderVersionListPanel = (query) => {
+    const listPanel = document.getElementById('versionListPanel');
+    if (!listPanel) return;
+    const currentVersion = query.versions.find(v => v.id === query.currentVersion)
+        || query.versions[query.versions.length - 1];
+    const sortedVersions = [...query.versions].sort((a, b) => b.version - a.version);
+
+    listPanel.innerHTML = sortedVersions.map(version => {
+        const isCurrent = version.id === currentVersion.id;
+        const date = new Date(version.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return `
+            <div class="version-list-item ${isCurrent ? 'is-current' : ''}"
+                 data-version-id="${version.id}"
+                 ${isCurrent ? '' : `onclick="selectDiffVersion('${version.id}')"`}>
+                <div class="flex items-center justify-between">
+                    <span class="version-badge" style="font-size:0.65rem; padding:0.15rem 0.4rem;">v${version.version}</span>
+                    ${isCurrent ? '<span class="text-xs font-medium" style="color:#007AFF;">Current</span>' : ''}
+                </div>
+                <span class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">${date}</span>
+            </div>
+        `;
+    }).join('');
+};
+
+const selectDiffVersion = (versionId) => {
+    try {
+        if (!selectedQueryId) return;
+        const query = queries.find(q => q.id === selectedQueryId);
+        if (!query || !query.versions) return;
+
+        const oldVersion = query.versions.find(v => v.id.toString() === versionId.toString());
+        const currentVersion = query.versions.find(v => v.id === query.currentVersion)
+            || query.versions[query.versions.length - 1];
+        if (!oldVersion || !currentVersion) return;
+
+        document.querySelectorAll('.version-list-item').forEach(el => el.classList.remove('selected'));
+        const selectedEl = document.querySelector(`[data-version-id="${versionId}"]`);
+        if (selectedEl) selectedEl.classList.add('selected');
+
+        const diffContent = document.getElementById('diffContent');
+        if (!diffContent) return;
+
+        if (typeof Diff === 'undefined') {
+            diffContent.innerHTML = '<div class="p-6 text-center text-red-500">Diff library not loaded.</div>';
+            return;
+        }
+
+        const diffResult = Diff.diffLines(oldVersion.query, currentVersion.query);
+
+        const leftRows = [];
+        const rightRows = [];
+        let leftLine = 1;
+        let rightLine = 1;
+
+        diffResult.forEach(part => {
+            const lines = part.value.split('\n');
+            if (lines[lines.length - 1] === '') lines.pop();
+
+            if (part.removed) {
+                lines.forEach(line => {
+                    leftRows.push({ type: 'removed', num: leftLine++, text: line });
+                    rightRows.push({ type: 'empty', num: '', text: '' });
+                });
+            } else if (part.added) {
+                lines.forEach(line => {
+                    leftRows.push({ type: 'empty', num: '', text: '' });
+                    rightRows.push({ type: 'added', num: rightLine++, text: line });
+                });
+            } else {
+                lines.forEach(line => {
+                    leftRows.push({ type: 'unchanged', num: leftLine++, text: line });
+                    rightRows.push({ type: 'unchanged', num: rightLine++, text: line });
+                });
+            }
+        });
+
+        const escHtml = str => str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        const buildSide = (rows, versionLabel, isCurrent) => {
+            const rowsHtml = rows.map(row => {
+                const cls = row.type === 'added'   ? 'diff-line-added'
+                          : row.type === 'removed' ? 'diff-line-removed'
+                          : row.type === 'empty'   ? 'diff-line-empty'
+                          : '';
+                return `<tr class="${cls}">
+                    <td class="diff-line-number">${row.num}</td>
+                    <td class="diff-line-content">${escHtml(row.text)}</td>
+                </tr>`;
+            }).join('');
+
+            return `
+                <div style="position:sticky; top:0; z-index:1;" class="px-3 py-2 text-xs font-semibold border-b border-gray-100 dark:border-white/[0.08] bg-white dark:bg-[#1c1c1e] flex items-center gap-2">
+                    <span class="version-badge" style="font-size:0.65rem; padding:0.15rem 0.4rem;">${versionLabel}</span>
+                    ${isCurrent ? '<span style="color:#007AFF; font-weight:600;">Current</span>' : ''}
+                </div>
+                <table class="diff-table"><tbody>${rowsHtml}</tbody></table>
+            `;
+        };
+
+        diffContent.innerHTML = `
+            <div style="display:grid; grid-template-columns:1fr 1fr; height:100%;">
+                <div style="overflow:auto; border-right:1px solid #e5e5ea;">
+                    ${buildSide(leftRows, 'v' + oldVersion.version, false)}
+                </div>
+                <div style="overflow:auto;">
+                    ${buildSide(rightRows, 'v' + currentVersion.version, true)}
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error rendering diff:', error);
+        showToast('toast-error', 'Failed to render diff');
     }
 };
 
@@ -352,7 +450,9 @@ const initCodeMirror = () => {
             tabSize: 2
         });
 
-        queryEditor.setSize('100%', '18rem');
+        const savedHeight = localStorage.getItem('editorHeight') || '18rem';
+        document.documentElement.style.setProperty('--editor-height', savedHeight);
+        queryEditor.setSize('100%', savedHeight);
         setTimeout(() => {
             queryEditor.refresh();
             console.log('CodeMirror refreshed');
@@ -1043,7 +1143,56 @@ const setupEventListeners = () => {
                 }
             });
         }
+        // Editor resize handle — Apple-style drag to resize
+    const editorResizeHandle = document.getElementById('editorResizeHandle');
+    if (editorResizeHandle) {
+        let isDragging = false;
+        let startY = 0;
+        let startHeight = 0;
+        const MIN_HEIGHT_PX = 160;
+        const MAX_HEIGHT_VH = 0.80;
 
+        editorResizeHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startY = e.clientY;
+            const currentHeight = localStorage.getItem('editorHeight') || '18rem';
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            if (currentHeight.endsWith('rem')) {
+                startHeight = parseFloat(currentHeight) * rootFontSize;
+            } else if (currentHeight.endsWith('px')) {
+                startHeight = parseFloat(currentHeight);
+            } else {
+                startHeight = 288;
+            }
+            editorResizeHandle.classList.add('dragging');
+            document.body.style.cursor = 'ns-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const delta = e.clientY - startY;
+            const maxHeightPx = window.innerHeight * MAX_HEIGHT_VH;
+            const newHeightPx = Math.min(Math.max(startHeight + delta, MIN_HEIGHT_PX), maxHeightPx);
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            const newHeightRem = (newHeightPx / rootFontSize).toFixed(2) + 'rem';
+            document.documentElement.style.setProperty('--editor-height', newHeightRem);
+            if (queryEditor) queryEditor.setSize('100%', newHeightRem);
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            editorResizeHandle.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            const finalHeight = getComputedStyle(document.documentElement)
+                .getPropertyValue('--editor-height').trim();
+            if (finalHeight) localStorage.setItem('editorHeight', finalHeight);
+            if (queryEditor) queryEditor.refresh();
+        });
+        }
         console.log('Event listeners setup complete');
     } catch (error) {
         console.error('Setting up event listeners failed:', error);
@@ -1057,7 +1206,7 @@ window.removeTag = removeTag;
 window.toggleFavorite = toggleFavorite;
 window.revertToVersion = revertToVersion;
 window.viewVersion = viewVersion;
-window.closeVersionModal = closeVersionModal;
+window.selectDiffVersion = selectDiffVersion;
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {

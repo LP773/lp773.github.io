@@ -35,13 +35,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/theme/material-darker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/theme/material.min.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
   <script src="script.js"></script>
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 min-h-screen font-inter">
+<body class="bg-[#f2f2f7] dark:bg-black min-h-screen">
 
   <!-- Header -->
-  <header class="sticky top-0 z-50 glass border-b border-gray-200 dark:border-gray-700">
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-md border-b border-gray-200/60 dark:border-white/[0.08]">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -80,29 +81,29 @@
     <div class="grid lg:grid-cols-5 gap-8">
 
       <!-- Sidebar -->
-      <aside class="lg:col-span-2 space-y-6">
+      <aside class="lg:col-span-2 flex flex-col">
 
-        <!-- New Query Button (standalone) -->
-        <button id="newQueryBtn" class="btn-primary w-full flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span>New Query</span>
-        </button>
-
-        <!-- Search (standalone) -->
-        <div class="relative">
-          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 z-10" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input id="searchInput" type="text" placeholder="Search queries or tags..." class="search-input">
+        <!-- TOP ZONE: Primary action + Search -->
+        <div class="space-y-3 mb-4">
+          <button id="newQueryBtn" class="btn-primary w-full flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>New Query</span>
+          </button>
+          <div class="relative">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 z-10" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="searchInput" type="text" placeholder="Search" class="search-input">
+          </div>
         </div>
 
-        <!-- Sidebar Tabs -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <div class="flex border-b border-gray-100 dark:border-gray-700">
+        <!-- MIDDLE ZONE: Tabs + Query list — grows to fill remaining space -->
+        <div class="sidebar-list-zone flex flex-col min-h-0 bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
+          <div class="flex border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
             <button id="tabQueries"
               class="flex-1 text-center py-3 font-medium text-sm text-gray-600 dark:text-gray-300 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 active-tab">
               My Queries
@@ -116,8 +117,7 @@
                 class="ml-1 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 text-xs font-medium rounded-full">0</span>
             </button>
           </div>
-
-          <div class="p-4 max-h-[32rem] overflow-y-auto custom-scrollbar">
+          <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
             <ul id="queryList" class="space-y-3">
               <li class="text-center py-12">
                 <div class="empty-state text-4xl mb-4">📝</div>
@@ -135,8 +135,8 @@
           </div>
         </div>
 
-        <!-- Import/Export Buttons (standalone) -->
-        <div class="flex space-x-3">
+        <!-- BOTTOM ZONE: Utility actions — pinned to bottom -->
+        <div class="flex space-x-3 mt-4 flex-shrink-0">
           <button id="exportBtn" class="btn-secondary flex-1 flex items-center justify-center space-x-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -153,12 +153,13 @@
             <span>Import</span>
           </button>
         </div>
+
       </aside>
 
       <!-- Main Editor -->
       <main class="lg:col-span-3">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
+          <div class="p-6 border-b border-gray-100/80 dark:border-white/[0.08]">
             <div class="flex items-center justify-between">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +193,7 @@
               <label for="queryName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Query Name
               </label>
-              <input id="queryName" type="text" placeholder="Enter a descriptive name for your query"
+              <input id="queryName" type="text" placeholder=""
                 class="modern-input">
             </div>
 
@@ -201,7 +202,7 @@
               <label for="tagInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Tags
               </label>
-              <input id="tagInput" type="text" placeholder="Add Tags (e.g., security, network, logs)"
+              <input id="tagInput" type="text" placeholder=""
                 class="modern-input">
             <p class="text-xs text-gray-500 mt-1">Press Enter to add tags</p>
             </div>
@@ -214,35 +215,41 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Query
               </label>
-              <div id="queryInput" class="rounded-xl overflow-hidden"></div>
+              <div id="editorContainer" class="editor-container">
+                <div id="queryInput" class="rounded-xl overflow-hidden"></div>
+                <div id="editorResizeHandle" class="editor-resize-handle" aria-label="Drag to resize editor">
+                  <div class="editor-resize-pill"></div>
+                </div>
+              </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <!-- Action Buttons -->
+          <div class="flex items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+            <!-- Left cluster: primary + icon actions -->
+            <div class="flex items-center gap-2">
               <button id="saveQueryBtn" class="btn-primary flex items-center space-x-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
-                <span>Save Query</span>
+                <span>Save</span>
               </button>
-
-              <button id="copyBtn" class="btn-success flex items-center space-x-2" disabled>
+              <button id="copyBtn" class="btn-action-icon" disabled title="Copy to Clipboard" aria-label="Copy to Clipboard">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                 </svg>
-                <span>Copy to Clipboard</span>
-              </button>
-
-              <button id="deleteBtn" class="btn-danger flex items-center space-x-2" disabled>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>Delete</span>
               </button>
             </div>
+            <!-- Right: destructive action — pushed far right, subdued until hover -->
+            <button id="deleteBtn" class="btn-danger-text flex items-center gap-1.5 ml-auto" disabled aria-label="Delete Query">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Delete</span>
+            </button>
+          </div>
           </div>
         </div>
       </main>
@@ -251,8 +258,8 @@
 
   <!-- Version History Modal -->
   <div id="versionModal" class="modal-backdrop" style="display: none;">
-    <div class="modal w-full max-w-2xl">
-      <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+    <div class="modal w-full max-w-6xl">
+      <div class="p-6 border-b border-gray-100/80 dark:border-white/[0.08]">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,43 +274,47 @@
           </button>
         </div>
       </div>
-      <div class="p-6 max-h-96 overflow-y-auto custom-scrollbar">
-        <div id="versionList" class="space-y-3">
-          <!-- Version history will be populated here -->
+      <div class="flex" style="height: 520px;">
+        <div id="versionListPanel" class="w-56 flex-shrink-0 border-r border-gray-100 dark:border-white/[0.08] overflow-y-auto custom-scrollbar p-3 space-y-1">
+        </div>
+        <div id="versionDiffPanel" class="flex-1 overflow-auto custom-scrollbar">
+          <div id="diffContent" class="h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+            Select a version to compare
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Toast Notifications -->
-  <div id="toast-copy" class="toast" style="display: none; background: linear-gradient(135deg, #10b981, #059669);">
+  <div id="toast-copy" class="toast" style="display: none; background: #34C759;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
-      <span>Copied to clipboard!</span>
+      <span>Copied to Clipboard!</span>
     </div>
   </div>
 
-  <div id="toast-save" class="toast" style="display: none; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+  <div id="toast-save" class="toast" style="display: none; background: #007AFF;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
-      <span>Query saved!</span>
+      <span>Query Saved!</span>
     </div>
   </div>
 
-  <div id="toast-delete" class="toast" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626);">
+  <div id="toast-delete" class="toast" style="display: none; background: #FF3B30;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
-      <span>Query deleted!</span>
+      <span>Query Deleted!</span>
     </div>
   </div>
 
-  <div id="toast-favorite" class="toast" style="display: none; background: linear-gradient(135deg, #facc15, #eab308);">
+  <div id="toast-favorite" class="toast" style="display: none; background: #FF9F0A;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -312,7 +323,7 @@
     </div>
   </div>
 
-  <div id="toast-error" class="toast" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626);">
+  <div id="toast-error" class="toast" style="display: none; background: #FF3B30;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -321,7 +332,7 @@
     </div>
   </div>
 
-  <div id="toast-version" class="toast" style="display: none; background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+  <div id="toast-version" class="toast" style="display: none; background: #5E5CE6;">
     <div class="flex items-center space-x-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
